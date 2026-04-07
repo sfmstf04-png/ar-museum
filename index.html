@@ -17,35 +17,38 @@
         <img id="img6" src="6.jpg">
       </a-assets>
 
-      <!-- The User's starting point -->
       <a-camera position="0 1.6 0"></a-camera>
 
-      <!-- 
-        WRAPPING ENTITY 
-        Change the Z value (currently -2.5) to move the whole museum 
-        closer to or further away from the user.
-      -->
-      <a-entity position="0 0 -2.0">
+      <!-- The Gallery Arc -->
+      <a-entity position="0 0 -1.5">
         
-        <!-- Left Side -->
-        <a-image src="#img1" position="-2.1 1.6 1.1" rotation="0 65 0" width="1" height="1.2"></a-image>
-        <a-image src="#img2" position="-1.45 1.6 0.3" rotation="0 38 0" width="1" height="1.2"></a-image>
-        <a-image src="#img3" position="-0.55 1.6 -0.1" rotation="0 13 0" width="1" height="1.2"></a-image>
+        <!-- Far Left -->
+        <a-image src="#img1" position="-1.8 1.6 0.85" rotation="0 65 0" width="1" height="1.2"></a-image>
 
-        <!-- Right Side -->
-        <a-image src="#img4" position="0.55 1.6 -0.1" rotation="0 -13 0" width="1" height="1.2"></a-image>
-        <a-image src="#img5" position="1.45 1.6 0.3" rotation="0 -40 0" width="1" height="1.2"></a-image>
-        <a-image src="#img6" position="2.1 1.6 1.1" rotation="0 -65 0" width="1" height="1.2"></a-image>
+        <!-- Mid Left -->
+        <a-image src="#img2" position="-1.2 1.6 0.25" rotation="0 38 0" width="1" height="1.2"></a-image>
+
+        <!-- Inner Left (Center-Left) -->
+        <!-- X is -0.45, Width is 1.0. This means the edge ends at +0.05 -->
+        <a-image src="#img3" position="-0.46 1.6 -0.1" rotation="0 15 0" width="1" height="1.2"></a-image>
+
+        <!-- Inner Right (Center-Right) -->
+        <!-- X is 0.45, Width is 1.0. This means the edge ends at -0.05 -->
+        <a-image src="#img4" position="0.46 1.6 -0.1" rotation="0 -15 0" width="1" height="1.2"></a-image>
+
+        <!-- Mid Right -->
+        <a-image src="#img5" position="1.2 1.6 0.25" rotation="0 -38 0" width="1" height="1.2"></a-image>
+
+        <!-- Far Right -->
+        <a-image src="#img6" position="1.8 1.6 0.85" rotation="0 -65 0" width="1" height="1.2"></a-image>
 
       </a-entity>
 
-      <!-- Lighting -->
-      <a-light type="ambient" intensity="0.8"></a-light>
-      <a-light type="directional" position="0 5 2" intensity="0.5"></a-light>
+      <a-light type="ambient" intensity="0.9"></a-light>
+      <a-light type="directional" position="0 5 2" intensity="0.4"></a-light>
 
     </a-scene>
 
-    <!-- AR Button -->
     <div style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 999;">
         <button onclick="document.querySelector('a-scene').enterAR()" style="padding: 15px 25px; border-radius: 30px; border: none; background: #007bff; color: white; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
             ENTER AR MUSEUM
