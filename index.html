@@ -19,33 +19,28 @@
 
       <a-camera position="0 1.6 0"></a-camera>
 
-      <!-- The Gallery Arc -->
-      <a-entity position="0 0 -1.5">
+      <!-- 
+        THE LAYOUT: 
+        All images are 1 meter wide. 
+        X positions are exactly 1.05 meters apart (1m width + 0.05m gap).
+      -->
+      <a-entity id="gallery-arc" position="0 0 -3">
         
-        <!-- Far Left -->
-        <a-image src="#img1" position="-1.8 1.6 0.85" rotation="0 65 0" width="1" height="1.2"></a-image>
+        <!-- Left Side -->
+        <a-image src="#img1" position="-2.62 1.6 0.5" rotation="0 35 0" width="1" height="1.3"></a-image>
+        <a-image src="#img2" position="-1.57 1.6 0.15" rotation="0 20 0" width="1" height="1.3"></a-image>
+        <a-image src="#img3" position="-0.52 1.6 0.0" rotation="0 5 0" width="1" height="1.3"></a-image>
 
-        <!-- Mid Left -->
-        <a-image src="#img2" position="-1.2 1.6 0.25" rotation="0 38 0" width="1" height="1.2"></a-image>
-
-        <!-- Inner Left (Center-Left) -->
-        <!-- X is -0.45, Width is 1.0. This means the edge ends at +0.05 -->
-        <a-image src="#img3" position="-0.46 1.6 -0.1" rotation="0 15 0" width="1" height="1.2"></a-image>
-
-        <!-- Inner Right (Center-Right) -->
-        <!-- X is 0.45, Width is 1.0. This means the edge ends at -0.05 -->
-        <a-image src="#img4" position="0.46 1.6 -0.1" rotation="0 -15 0" width="1" height="1.2"></a-image>
-
-        <!-- Mid Right -->
-        <a-image src="#img5" position="1.2 1.6 0.25" rotation="0 -38 0" width="1" height="1.2"></a-image>
-
-        <!-- Far Right -->
-        <a-image src="#img6" position="1.8 1.6 0.85" rotation="0 -65 0" width="1" height="1.2"></a-image>
+        <!-- Right Side -->
+        <a-image src="#img4" position="0.52 1.6 0.0" rotation="0 -5 0" width="1" height="1.3"></a-image>
+        <a-image src="#img5" position="1.57 1.6 0.15" rotation="0 -20 0" width="1" height="1.3"></a-image>
+        <a-image src="#img6" position="2.62 1.6 0.5" rotation="0 -35 0" width="1" height="1.3"></a-image>
 
       </a-entity>
 
-      <a-light type="ambient" intensity="0.9"></a-light>
-      <a-light type="directional" position="0 5 2" intensity="0.4"></a-light>
+      <!-- Soft Museum Lighting -->
+      <a-light type="ambient" intensity="0.8"></a-light>
+      <a-light type="directional" position="0 5 2" intensity="0.5"></a-light>
 
     </a-scene>
 
