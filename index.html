@@ -17,36 +17,70 @@
         <img id="img6" src="6.jpg">
       </a-assets>
 
-      <a-camera position="0 1.6 0"></a-camera>
+      <a-camera position="0 1.6 0">
+        <!-- Adding a cursor so the user can "click" in AR if needed -->
+        <a-cursor fuse="false" raycaster="objects: .clickable" color="white"></a-cursor>
+      </a-camera>
 
-      <!-- 
-        THE LAYOUT: 
-        All images are 1 meter wide. 
-        X positions are exactly 1.05 meters apart (1m width + 0.05m gap).
-      -->
-      <a-entity id="gallery-arc" position="0 0 -3">
+      <a-entity id="museum-arc" position="0 0 -2.5">
         
-        <!-- Left Side -->
-        <a-image src="#img1" position="-2.62 1.6 0.5" rotation="0 35 0" width="1" height="1.3"></a-image>
-        <a-image src="#img2" position="-1.57 1.6 0.15" rotation="0 20 0" width="1" height="1.3"></a-image>
-        <a-image src="#img3" position="-0.52 1.6 0.0" rotation="0 5 0" width="1" height="1.3"></a-image>
+        <!-- FRAME TEMPLATE: We use a wrapper entity for each artwork -->
+        
+        <!-- Artwork 1 -->
+        <a-entity position="-2.2 1.6 0.8" rotation="0 60 0">
+          <a-plane color="#111" width="1.1" height="1.4" position="0 0 -0.01"></a-plane> <!-- The Frame -->
+          <a-image src="#img1" width="1" height="1.3"></a-image> <!-- The Art -->
+          <a-text value="Artwork Title 01" align="center" position="0 -0.8 0" width="2" color="white"></a-text> <!-- Label -->
+        </a-entity>
 
-        <!-- Right Side -->
-        <a-image src="#img4" position="0.52 1.6 0.0" rotation="0 -5 0" width="1" height="1.3"></a-image>
-        <a-image src="#img5" position="1.57 1.6 0.15" rotation="0 -20 0" width="1" height="1.3"></a-image>
-        <a-image src="#img6" position="2.62 1.6 0.5" rotation="0 -35 0" width="1" height="1.3"></a-image>
+        <!-- Artwork 2 -->
+        <a-entity position="-1.3 1.6 0.2" rotation="0 35 0">
+          <a-plane color="#111" width="1.1" height="1.4" position="0 0 -0.01"></a-plane>
+          <a-image src="#img2" width="1" height="1.3"></a-image>
+          <a-text value="Artwork Title 02" align="center" position="0 -0.8 0" width="2"></a-text>
+        </a-entity>
+
+        <!-- Artwork 3 -->
+        <a-entity position="-0.45 1.6 -0.1" rotation="0 10 0">
+          <a-plane color="#111" width="1.1" height="1.4" position="0 0 -0.01"></a-plane>
+          <a-image src="#img3" width="1" height="1.3"></a-image>
+          <a-text value="Artwork Title 03" align="center" position="0 -0.8 0" width="2"></a-text>
+        </a-entity>
+
+        <!-- Artwork 4 -->
+        <a-entity position="0.45 1.6 -0.1" rotation="0 -10 0">
+          <a-plane color="#111" width="1.1" height="1.4" position="0 0 -0.01"></a-plane>
+          <a-image src="#img4" width="1" height="1.3"></a-image>
+          <a-text value="Artwork Title 04" align="center" position="0 -0.8 0" width="2"></a-text>
+        </a-entity>
+
+        <!-- Artwork 5 -->
+        <a-entity position="1.3 1.6 0.2" rotation="0 -35 0">
+          <a-plane color="#111" width="1.1" height="1.4" position="0 0 -0.01"></a-plane>
+          <a-image src="#img5" width="1" height="1.3"></a-image>
+          <a-text value="Artwork Title 05" align="center" position="0 -0.8 0" width="2"></a-text>
+        </a-entity>
+
+        <!-- Artwork 6 -->
+        <a-entity position="2.2 1.6 0.8" rotation="0 -60 0">
+          <a-plane color="#111" width="1.1" height="1.4" position="0 0 -0.01"></a-plane>
+          <a-image src="#img6" width="1" height="1.3"></a-image>
+          <a-text value="Artwork Title 06" align="center" position="0 -0.8 0" width="2"></a-text>
+        </a-entity>
 
       </a-entity>
 
-      <!-- Soft Museum Lighting -->
-      <a-light type="ambient" intensity="0.8"></a-light>
-      <a-light type="directional" position="0 5 2" intensity="0.5"></a-light>
+      <!-- LIGHTING IMPROVEMENT -->
+      <a-light type="ambient" intensity="0.6"></a-light>
+      <!-- Point light makes the frames look like they have a highlight -->
+      <a-light type="point" position="0 2 -1" intensity="0.8" distance="5"></a-light>
 
     </a-scene>
 
+    <!-- UI -->
     <div style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 999;">
-        <button onclick="document.querySelector('a-scene').enterAR()" style="padding: 15px 25px; border-radius: 30px; border: none; background: #007bff; color: white; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
-            ENTER AR EXPERIENCE
+        <button onclick="document.querySelector('a-scene').enterAR()" style="padding: 15px 25px; border-radius: 30px; border: none; background: #222; color: white; font-size: 18px; font-weight: bold; cursor: pointer; border: 2px solid #fff;">
+            START EXPERIENCE
         </button>
     </div>
   </body>
