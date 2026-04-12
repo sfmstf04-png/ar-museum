@@ -1,290 +1,210 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { Maximize, Info, Camera, X, Play } from 'lucide-react';
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Immersive AR Gallery</title>
+    
+    <!-- Libraries -->
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <script src="https://unpkg.com/aframe-event-set-component@5.0.0/dist/aframe-event-set-component.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .a-canvas { width: 100% !important; height: 100% !important; }
+        .a-enter-vr { display: none !important; }
+        .glass { background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+    </style>
 
-// A-Frame components as any to avoid JSX type issues
-const Scene = 'a-scene' as any;
-const Assets = 'a-assets' as any;
-const Entity = 'a-entity' as any;
-const CameraEl = 'a-camera' as any;
-const Image = 'a-image' as any;
-const Light = 'a-light' as any;
-const Box = 'a-box' as any;
-const Text = 'a-text' as any;
-const Cursor = 'a-cursor' as any;
-const Plane = 'a-plane' as any;
+    <script>
+        // --- CONFIGURATION: CHANGE YOUR PICTURES HERE ---
+        const GALLERY_DATA = [
+            { id: 1, title: "Ethereal Dreams", artist: "Elena Rossi", url: "https://picsum.photos/seed/dream/800/1000" },
+            { id: 2, title: "Urban Pulse", artist: "Marcus Thorne", url: "https://picsum.photos/seed/city/1200/800" },
+            { id: 3, title: "Nature's Whisper", artist: "Sarah Jenkins", url: "https://picsum.photos/seed/forest/1000/1000" },
+            { id: 4, title: "Digital Horizon", artist: "Alex Chen", url: "https://picsum.photos/seed/tech/800/1200" },
+            { id: 5, title: "Golden Hour", artist: "Maya Patel", url: "https://picsum.photos/seed/sunset/1500/900" },
+            { id: 6, title: "Abstract Flow", artist: "Julian Vane", url: "https://picsum.photos/seed/abstract/900/1200" }
+        ];
 
-const GALLERY_ITEMS = [
-  { id: 1, title: "Ethereal Dreams", artist: "Elena Rossi", seed: "dream" },
-  { id: 2, title: "Urban Pulse", artist: "Marcus Thorne", seed: "city" },
-  { id: 3, title: "Nature's Whisper", artist: "Sarah Jenkins", seed: "forest" },
-  { id: 4, title: "Digital Horizon", artist: "Alex Chen", seed: "tech" },
-  { id: 5, title: "Golden Hour", artist: "Maya Patel", seed: "sunset" },
-  { id: 6, title: "Abstract Flow", artist: "Julian Vane", seed: "abstract" },
-];
-
-export default function App() {
-  const [selectedItem, setSelectedItem] = useState<typeof GALLERY_ITEMS[0] | null>(null);
-  const [isARMode, setIsARMode] = useState(false);
-  const [showInstructions, setShowInstructions] = useState(true);
-
-  useEffect(() => {
-    const scene = document.querySelector('a-scene');
-    if (scene) {
-      scene.addEventListener('enter-vr', () => setIsARMode(true));
-      scene.addEventListener('exit-vr', () => setIsARMode(false));
-    }
-
-    // Add click listeners to items
-    const items = document.querySelectorAll('.clickable');
-    items.forEach((el, index) => {
-      el.addEventListener('click', () => {
-        setSelectedItem(GALLERY_ITEMS[index]);
-      });
-    });
-
-    return () => {
-      items.forEach((el, index) => {
-        el.removeEventListener('click', () => {
-          setSelectedItem(GALLERY_ITEMS[index]);
+        // A-Frame Component for handling clicks
+        AFRAME.registerComponent('gallery-item', {
+            schema: { id: {type: 'number'} },
+            init: function () {
+                this.el.addEventListener('click', () => {
+                    const item = GALLERY_DATA.find(d => d.id === this.data.id);
+                    window.showInfoCard(item);
+                });
+            }
         });
-      });
-    };
-  }, []);
+    </script>
+</head>
+<body class="bg-black m-0 overflow-hidden">
 
-  const enterAR = () => {
-    const scene = document.querySelector('a-scene') as any;
-    if (scene) {
-      scene.enterAR();
-    }
-  };
+    <!-- A-Frame Scene -->
+    <a-scene xr-mode-ui="enabled: true" renderer="colorManagement: true; antialias: true;">
+        
+        <a-assets id="gallery-assets">
+            <!-- Assets will be injected here -->
+        </a-assets>
 
-  return (
-    <div className="relative w-full h-screen bg-black overflow-hidden font-sans">
-      {/* A-Frame Scene */}
-      <Scene 
-        xr-mode-ui="enabled: true" 
-        renderer="colorManagement: true; antialias: true;"
-        embedded
-        className="w-full h-full"
-      >
-        <Assets>
-          {GALLERY_ITEMS.map(item => (
-            <img 
-              key={item.id} 
-              id={`img-${item.id}`} 
-              src={`https://picsum.photos/seed/${item.seed}/800/1000`} 
-              crossOrigin="anonymous"
-              referrerPolicy="no-referrer"
-            />
-          ))}
-        </Assets>
+        <a-camera position="0 1.6 0">
+            <a-cursor 
+                color="#FFD700" 
+                animation__click="property: scale; startEvents: click; from: 0.1 0.1 0.1; to: 1 1 1; dur: 150"
+                animation__fusing="property: fusing; startEvents: fusing; from: 1 1 1; to: 0.1 0.1 0.1; dur: 1500"
+                event-set__mouseenter="_event: mouseenter; color: #007bff"
+                event-set__mouseleave="_event: mouseleave; color: #FFD700"
+                raycaster="objects: .clickable"
+            ></a-cursor>
+        </a-camera>
 
-        <CameraEl position="0 1.6 0">
-          <Cursor 
-            color="#FFD700" 
-            animation__click="property: scale; startEvents: click; from: 0.1 0.1 0.1; to: 1 1 1; dur: 150"
-            animation__fusing="property: fusing; startEvents: fusing; from: 1 1 1; to: 0.1 0.1 0.1; dur: 1500"
-            event-set__mouseenter="_event: mouseenter; color: #007bff"
-            event-set__mouseleave="_event: mouseleave; color: #FFD700"
-            raycaster="objects: .clickable"
-          ></Cursor>
-        </CameraEl>
+        <a-entity id="gallery-container" position="0 0 -2.5">
+            <!-- Gallery items will be injected here -->
+        </a-entity>
 
-        {/* Gallery Arc */}
-        <Entity position="0 0 -2">
-          {GALLERY_ITEMS.map((item, index) => {
-            const angle = (index - 2.5) * 25; // Spread items in an arc
-            const radius = 2.5;
+        <a-light type="ambient" intensity="0.6"></a-light>
+        <a-light type="directional" position="0 5 2" intensity="0.3"></a-light>
+        
+        <a-plane id="floor" rotation="-90 0 0" width="20" height="20" color="#111" material="roughness: 0.8; metalness: 0.2"></a-plane>
+    </a-scene>
+
+    <!-- UI Overlay -->
+    <div class="fixed inset-0 pointer-events-none flex flex-col justify-between p-6 md:p-10 z-50">
+        
+        <!-- Header -->
+        <div class="flex justify-between items-start pointer-events-auto">
+            <div class="glass p-4 rounded-2xl">
+                <h1 class="text-white text-xl md:text-2xl font-bold tracking-tight">Immersive AR Gallery</h1>
+                <p class="text-white/60 text-sm">Curated Digital Collection</p>
+            </div>
+            <button onclick="toggleInstructions(true)" class="p-3 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full text-white transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+            </button>
+        </div>
+
+        <!-- Bottom Controls -->
+        <div class="flex flex-col items-center gap-6 pointer-events-auto">
+            <!-- Info Card -->
+            <div id="info-card" class="hidden glass p-6 rounded-3xl shadow-2xl max-w-xs w-full text-white relative animate-bounce-in">
+                <button onclick="window.showInfoCard(null)" class="absolute top-4 right-4 text-white/40 hover:text-white transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                </button>
+                <h3 id="card-title" class="text-2xl font-bold mb-1"></h3>
+                <p id="card-artist" class="text-white/60 font-medium mb-4"></p>
+                <p class="text-sm leading-relaxed text-white/80">
+                    This piece explores the intersection of digital consciousness and organic forms.
+                </p>
+            </div>
+
+            <button onclick="document.querySelector('a-scene').enterAR()" class="px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-full font-bold shadow-lg shadow-blue-900/40 flex items-center gap-3 transition-all">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><rect width="10" height="10" x="7" y="7" rx="2"/></svg>
+                ENTER AR MUSEUM
+            </button>
+        </div>
+    </div>
+
+    <!-- Instructions Modal -->
+    <div id="instructions" class="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-6">
+        <div class="bg-zinc-900 border border-white/10 p-8 rounded-[2.5rem] max-w-md w-full text-white shadow-2xl">
+            <div class="w-16 h-16 bg-blue-600/20 rounded-2xl flex items-center justify-center mb-6 text-blue-500">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+            </div>
+            <h2 class="text-3xl font-bold mb-4">Welcome to the Gallery</h2>
+            <div class="space-y-4 mb-8 text-zinc-400">
+                <div class="flex gap-4">
+                    <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-sm font-bold text-white shrink-0">1</div>
+                    <p>Tap "Enter AR" to project the gallery into your space.</p>
+                </div>
+                <div class="flex gap-4">
+                    <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-sm font-bold text-white shrink-0">2</div>
+                    <p>Look around to explore the curved arc of masterpieces.</p>
+                </div>
+                <div class="flex gap-4">
+                    <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-sm font-bold text-white shrink-0">3</div>
+                    <p>Focus the golden cursor on any piece to reveal its story.</p>
+                </div>
+            </div>
+            <button onclick="toggleInstructions(false)" class="w-full py-4 bg-white text-black rounded-2xl font-bold hover:bg-zinc-200 transition-colors flex items-center justify-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="m7 4 12 8-12 8V4z"/></svg>
+                START EXPERIENCE
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function toggleInstructions(show) {
+            document.getElementById('instructions').classList.toggle('hidden', !show);
+        }
+
+        window.showInfoCard = function(item) {
+            const card = document.getElementById('info-card');
+            if (!item) {
+                card.classList.add('hidden');
+                return;
+            }
+            document.getElementById('card-title').innerText = item.title;
+            document.getElementById('card-artist').innerText = `by ${item.artist}`;
+            card.classList.remove('hidden');
+        };
+
+        // Initialize Gallery
+        const assets = document.getElementById('gallery-assets');
+        const container = document.getElementById('gallery-container');
+
+        GALLERY_DATA.forEach((item, index) => {
+            // Create Asset
+            const img = document.createElement('img');
+            img.id = `img-${item.id}`;
+            img.src = item.url;
+            img.crossOrigin = "anonymous";
+            assets.appendChild(img);
+
+            // Calculate Position
+            const angle = (index - (GALLERY_DATA.length - 1) / 2) * 25;
+            const radius = 3;
             const x = Math.sin(angle * (Math.PI / 180)) * radius;
             const z = Math.cos(angle * (Math.PI / 180)) * radius - radius;
             const rotation = -angle;
 
-            return (
-              <Entity 
-                key={item.id} 
-                position={`${x} 1.6 ${z}`} 
-                rotation={`0 ${rotation} 0`}
-              >
-                {/* Frame */}
-                <Box 
-                  position="0 0 -0.05" 
-                  width="1.1" 
-                  height="1.3" 
-                  depth="0.05" 
-                  color="#2c1e12"
-                ></Box>
-                
-                {/* Inner Frame (Gold) */}
-                <Box 
-                  position="0 0 -0.02" 
-                  width="1.02" 
-                  height="1.22" 
-                  depth="0.02" 
-                  color="#D4AF37"
-                ></Box>
+            // Create Entity
+            const entity = document.createElement('a-entity');
+            entity.setAttribute('position', `${x} 1.6 ${z}`);
+            entity.setAttribute('rotation', `0 ${rotation} 0`);
 
-                {/* Image */}
-                <Image 
-                  src={`#img-${item.id}`} 
-                  width="1" 
-                  height="1.2"
-                  className="clickable"
-                ></Image>
+            // Load image to get ratio
+            const tempImg = new Image();
+            tempImg.src = item.url;
+            tempImg.crossOrigin = "anonymous";
+            tempImg.onload = () => {
+                const ratio = tempImg.naturalWidth / tempImg.naturalHeight;
+                const baseSize = 1.2;
+                let w, h;
+                if (ratio > 1) { w = baseSize; h = baseSize / ratio; }
+                else { h = baseSize; w = baseSize * ratio; }
 
-                {/* Label */}
-                <Text
-                  value={`${item.title}\n${item.artist}`}
-                  position="0 -0.75 0"
-                  align="center"
-                  width="2"
-                  color="#FFF"
-                  font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
-                ></Text>
+                entity.innerHTML = `
+                    <a-box position="0 0 -0.05" width="${w + 0.1}" height="${h + 0.1}" depth="0.05" color="#2c1e12"></a-box>
+                    <a-box position="0 0 -0.02" width="${w + 0.02}" height="${h + 0.02}" depth="0.02" color="#D4AF37"></a-box>
+                    <a-image src="#img-${item.id}" width="${w}" height="${h}" class="clickable" gallery-item="id: ${item.id}"></a-image>
+                    <a-text value="${item.title}\n${item.artist}" position="0 ${-h/2 - 0.15} 0" align="center" width="2" color="#FFF"></a-text>
+                    <a-light type="spot" color="#FFF" intensity="0.5" position="0 2 1" target="#img-${item.id}"></a-light>
+                `;
+            };
 
-                {/* Spotlight effect */}
-                <Light 
-                  type="spot" 
-                  color="#FFF" 
-                  intensity="0.5" 
-                  position="0 2 1" 
-                  target={`#img-${item.id}`}
-                ></Light>
-              </Entity>
-            );
-          })}
-        </Entity>
+            container.appendChild(entity);
+        });
 
-        {/* Environment */}
-        <Light type="ambient" intensity="0.6"></Light>
-        <Light type="directional" position="0 5 2" intensity="0.3"></Light>
-        
-        {/* Floor for non-AR reference */}
-        {!isARMode && (
-          <Plane 
-            rotation="-90 0 0" 
-            width="20" 
-            height="20" 
-            color="#111" 
-            material="roughness: 0.8; metalness: 0.2"
-          ></Plane>
-        )}
-      </Scene>
+        // Hide floor in AR
+        document.querySelector('a-scene').addEventListener('enter-vr', () => {
+            document.getElementById('floor').setAttribute('visible', 'false');
+        });
+        document.querySelector('a-scene').addEventListener('exit-vr', () => {
+            document.getElementById('floor').setAttribute('visible', 'true');
+        });
+    </script>
+</body>
+</html>
 
-      {/* UI Overlay */}
-      <div className="absolute inset-0 pointer-events-none flex flex-col justify-between p-6 md:p-10">
-        {/* Header */}
-        <div className="flex justify-between items-start pointer-events-auto">
-          <motion.div 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-black/40 backdrop-blur-md p-4 rounded-2xl border border-white/10"
-          >
-            <h1 className="text-white text-xl md:text-2xl font-bold tracking-tight">Immersive AR Gallery</h1>
-            <p className="text-white/60 text-sm">Curated Digital Collection</p>
-          </motion.div>
-
-          <button 
-            onClick={() => setShowInstructions(true)}
-            className="p-3 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full text-white transition-colors"
-          >
-            <Info size={24} />
-          </button>
-        </div>
-
-        {/* Bottom Controls */}
-        <div className="flex flex-col items-center gap-6 pointer-events-auto">
-          <AnimatePresence>
-            {selectedItem && (
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                className="bg-white/90 backdrop-blur-xl p-6 rounded-3xl shadow-2xl max-w-xs w-full text-black relative"
-              >
-                <button 
-                  onClick={() => setSelectedItem(null)}
-                  className="absolute top-4 right-4 text-black/40 hover:text-black transition-colors"
-                >
-                  <X size={20} />
-                </button>
-                <h3 className="text-2xl font-bold mb-1">{selectedItem.title}</h3>
-                <p className="text-black/60 font-medium mb-4">by {selectedItem.artist}</p>
-                <p className="text-sm leading-relaxed text-black/80">
-                  This piece explores the intersection of digital consciousness and organic forms, 
-                  part of the "{selectedItem.seed.toUpperCase()}" series.
-                </p>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          <div className="flex gap-4">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={enterAR}
-              className="px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-full font-bold shadow-lg shadow-blue-900/40 flex items-center gap-3 transition-all"
-            >
-              <Maximize size={20} />
-              ENTER AR MUSEUM
-            </motion.button>
-          </div>
-        </div>
-      </div>
-
-      {/* Instructions Modal */}
-      <AnimatePresence>
-        {showInstructions && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="absolute inset-0 z-[1000] bg-black/80 backdrop-blur-sm flex items-center justify-center p-6"
-          >
-            <motion.div 
-              initial={{ scale: 0.9, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              className="bg-zinc-900 border border-white/10 p-8 rounded-[2.5rem] max-w-md w-full text-white shadow-2xl"
-            >
-              <div className="w-16 h-16 bg-blue-600/20 rounded-2xl flex items-center justify-center mb-6 text-blue-500">
-                <Camera size={32} />
-              </div>
-              <h2 className="text-3xl font-bold mb-4">Welcome to the Gallery</h2>
-              <div className="space-y-4 mb-8 text-zinc-400">
-                <div className="flex gap-4">
-                  <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-sm font-bold text-white shrink-0">1</div>
-                  <p>Tap "Enter AR" to project the gallery into your space.</p>
-                </div>
-                <div className="flex gap-4">
-                  <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-sm font-bold text-white shrink-0">2</div>
-                  <p>Look around to explore the curved arc of masterpieces.</p>
-                </div>
-                <div className="flex gap-4">
-                  <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-sm font-bold text-white shrink-0">3</div>
-                  <p>Focus the golden cursor on any piece to reveal its story.</p>
-                </div>
-              </div>
-              <button 
-                onClick={() => setShowInstructions(false)}
-                className="w-full py-4 bg-white text-black rounded-2xl font-bold hover:bg-zinc-200 transition-colors flex items-center justify-center gap-2"
-              >
-                <Play size={20} fill="currentColor" />
-                START EXPERIENCE
-              </button>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <style>{`
-        .a-canvas {
-          width: 100% !important;
-          height: 100% !important;
-        }
-        .a-enter-vr {
-          display: none !important;
-        }
-      `}</style>
-    </div>
-  );
-}
