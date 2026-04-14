@@ -1,195 +1,437 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Personal AR Gallery</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>STF AR Gallery</title>
     
     <!-- Libraries -->
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://unpkg.com/aframe-event-set-component@5.0.0/dist/aframe-event-set-component.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Inter:wght@300;400;600&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
-        body { font-family: 'Inter', sans-serif; margin: 0; overflow: hidden; background: #000; }
-        .a-canvas { width: 100% !important; height: 100% !important; }
-        .glass { background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .a-enter-vr { display: none !important; } /* Hide default AR button */
+      body { margin: 0; overflow: hidden; background: #000; font-family: 'Inter', sans-serif; }
+      .a-canvas { width: 100% !important; height: 100% !important; }
+      .a-enter-vr { display: none !important; }
+      
+      .glass { background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(24px); border: 1px solid rgba(255, 255, 255, 0.12); box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
+      .glass-light { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+      
+      .font-serif { font-family: 'Cormorant Garamond', serif; letter-spacing: -0.01em; }
+      .font-display { font-family: 'Montserrat', sans-serif; letter-spacing: 0.05em; }
+      
+      @keyframes scan {
+        0% { transform: translateY(-100%); opacity: 0; }
+        50% { opacity: 0.5; }
+        100% { transform: translateY(100%); opacity: 0; }
+      }
+      .scan-line { position: absolute; width: 100%; height: 2px; background: #D4AF37; animation: scan 2s linear infinite; }
+      
+      @keyframes pulse-soft {
+        0%, 100% { opacity: 0.2; transform: scale(1); }
+        50% { opacity: 0.4; transform: scale(1.15); }
+      }
+      .animate-pulse-soft { animation: pulse-soft 10s infinite ease-in-out; }
+
+      .text-glow { text-shadow: 0 0 15px rgba(255, 215, 0, 0.3); }
     </style>
 
     <script>
-        // ============================================================
-        // 1. CONFIGURATION: Make sure these match your GitHub files!
-        // ============================================================
-        const GALLERY_DATA = [
-            { id: 1, title: "Art Piece 1", artist: "Me", file: "pic1.jpg" },
-            { id: 2, title: "Art Piece 2", artist: "Me", file: "pic2.jpg" },
-            { id: 3, title: "Art Piece 3", artist: "Me", file: "pic3.jpg" },
-            { id: 4, title: "Art Piece 4", artist: "Me", file: "pic4.jpg" },
-            { id: 5, title: "Art Piece 5", artist: "Me", file: "pic5.jpg" },
-            { id: 6, title: "Art Piece 6", artist: "Me", file: "pic6.jpg" }
-        ];
+      // 1. Configuration Data
+      const CURATOR_NOTE = "This is a digital experience that will showcase pictures showing how our Leaders became a good influence through wholeheartedly fulfilling their duty. And as a result, it led to the wholehearted fulfillment of duties by the ministers and ministerial workers and the Church officers";
 
-        // Register the click component
+      const GALLERY_DATA = [
+        { 
+          id: 1, 
+          title: "Eye po", 
+          artist: "STF Photography", 
+          file: "assets/pic1.jpg", 
+          description: "Painting ng eye po.",
+          year: "2024"
+        },
+        { 
+          id: 2, 
+          title: "Man po", 
+          artist: "STF Photography", 
+          file: "assets/pic2.jpg", 
+          description: "Picture ng ------",
+          year: "2023"
+        },
+        { 
+          id: 3, 
+          title: "Mossaic po", 
+          artist: "STF Photography", 
+          file: "assets/pic3.jpg", 
+          description: "Mossaic lang po ----",
+          year: "2024"
+        },
+        { 
+          id: 4, 
+          title: "Girl po", 
+          artist: "STF Photography", 
+          file: "assets/pic4.jpg", 
+          description: "Picture ng girl.",
+          year: "2023"
+        },
+        { 
+          id: 5, 
+          title: "Guitar po", 
+          artist: "STF Photography", 
+          file: "assets/pic5.jpg", 
+          description: "Painting ng guitar po.",
+          year: "2024"
+        },
+        { 
+          id: 6, 
+          title: "Man playing instrument", 
+          artist: "STF Photography", 
+          file: "assets/pic6.jpg", 
+          description: "Nagpplay po ng instrument.",
+          year: "2024"
+        }
+      ];
+
+      // 2. A-Frame Component Registration (Must be before scene)
+      if (typeof AFRAME !== 'undefined') {
         AFRAME.registerComponent('gallery-item', {
-            schema: { id: {type: 'number'} },
-            init: function () {
-                this.el.addEventListener('click', () => {
-                    const item = GALLERY_DATA.find(d => d.id === this.data.id);
-                    window.showInfoCard(item);
-                });
-            }
+          schema: { id: {type: 'number'} },
+          init: function () {
+            this.el.addEventListener('click', () => {
+              const item = GALLERY_DATA.find(d => d.id === this.data.id);
+              window.showInfoCard(item);
+            });
+            
+            this.el.addEventListener('mouseenter', () => {
+              // AUTO-POP: Show info card on hover/point
+              const item = GALLERY_DATA.find(d => d.id === this.data.id);
+              window.showInfoCard(item);
+
+              this.el.setAttribute('animation__scale', {
+                property: 'scale',
+                to: '1.05 1.05 1.05',
+                dur: 300,
+                easing: 'easeOutQuad'
+              });
+
+              // Enable scan line
+              const scanLine = this.el.querySelector('a-entity');
+              if (scanLine) {
+                scanLine.setAttribute('material', 'opacity', '0.6');
+                scanLine.setAttribute('animation', 'enabled', 'true');
+              }
+            });
+            
+            this.el.addEventListener('mouseleave', () => {
+              this.el.setAttribute('animation__scale', {
+                property: 'scale',
+                to: '1 1 1',
+                dur: 300,
+                easing: 'easeOutQuad'
+              });
+
+              // Disable scan line
+              const scanLine = this.el.querySelector('a-entity');
+              if (scanLine) {
+                scanLine.setAttribute('material', 'opacity', '0');
+                scanLine.setAttribute('animation', 'enabled', 'false');
+              }
+            });
+          }
         });
+      }
+
+      // 3. UI Functions
+      window.currentItem = null;
+
+      window.showInfoCard = function(item) {
+        const card = document.getElementById('info-card');
+        if (!card) return;
+        if (!item) {
+          card.classList.add('opacity-0', 'translate-y-10', 'pointer-events-none');
+          window.currentItem = null;
+          return;
+        }
+        window.currentItem = item;
+        document.getElementById('card-title').innerText = item.title;
+        document.getElementById('card-artist').innerText = `by ${item.artist}`;
+        document.getElementById('card-description').innerText = item.description;
+        document.getElementById('card-year').innerText = item.year;
+        card.classList.remove('opacity-0', 'translate-y-10', 'pointer-events-none');
+      };
+
+      window.viewFullscreen = function() {
+        if (!window.currentItem) return;
+        const modal = document.getElementById('fullscreen-modal');
+        const img = document.getElementById('fullscreen-img');
+        img.src = window.currentItem.file;
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        setTimeout(() => modal.classList.remove('opacity-0'), 10);
+      };
+
+      window.closeFullscreen = function() {
+        const modal = document.getElementById('fullscreen-modal');
+        modal.classList.add('opacity-0');
+        setTimeout(() => {
+          modal.classList.add('hidden');
+          modal.classList.remove('flex');
+        }, 500);
+      };
+
+      window.enterAR = function() {
+        const scene = document.querySelector('a-scene');
+        if (scene && scene.enterAR) scene.enterAR();
+      };
+
+      window.closeInstructions = function() {
+        const modal = document.getElementById('instructions-modal');
+        if (modal) modal.classList.add('opacity-0', 'pointer-events-none');
+      };
     </script>
-</head>
-<body>
-
+  </head>
+  <body>
     <!-- A-Frame Scene -->
-    <a-scene xr-mode-ui="enabled: true" renderer="colorManagement: true; antialias: true;">
-        
-        <a-assets id="gallery-assets">
-            <!-- Assets will be injected here by JS -->
-        </a-assets>
+    <a-scene 
+      webxr="overlayElement: #ui-container; optionalFeatures: dom-overlay;" 
+      renderer="colorManagement: true; antialias: true; alpha: true;"
+    >
+      <a-assets id="gallery-assets"></a-assets>
 
-        <!-- Camera + Cursor -->
-        <a-camera position="0 1.6 0">
-            <a-cursor 
-                color="#FFD700" 
-                animation__click="property: scale; startEvents: click; from: 0.1 0.1 0.1; to: 1 1 1; dur: 150"
-                raycaster="objects: .clickable"
-            ></a-cursor>
-        </a-camera>
+      <a-camera position="0 1.6 0" look-controls="pointerLockEnabled: false; touchEnabled: true;" wasd-controls-enabled="false">
+        <a-cursor 
+          color="#FFD700" 
+          animation__click="property: scale; startEvents: click; from: 0.1 0.1 0.1; to: 1 1 1; dur: 150"
+          raycaster="objects: .clickable"
+        ></a-cursor>
+        <!-- Dynamic Spotlight -->
+        <a-light type="spot" color="#FFF" intensity="0.4" distance="10" angle="30" penumbra="0.5"></a-light>
+      </a-camera>
 
-        <!-- The Gallery Group -->
-        <a-entity id="gallery-container" position="0 0 -3"></a-entity>
+      <a-entity id="gallery-container" position="0 0 0"></a-entity>
 
-        <!-- Lights -->
-        <a-light type="ambient" intensity="0.7"></a-light>
-        <a-light type="directional" position="0 5 2" intensity="0.4"></a-light>
-        
-        <!-- Floor (Hidden in AR) -->
-        <a-plane id="floor" rotation="-90 0 0" width="20" height="20" color="#111"></a-plane>
+      <a-light type="ambient" intensity="0.4"></a-light>
+      <a-light type="point" position="0 5 0" intensity="0.3" distance="20"></a-light>
+      
+      <a-plane id="floor" rotation="-90 0 0" width="100" height="100" color="#080808" material="roughness: 0.9; metalness: 0.1; src: url(https://picsum.photos/seed/darkfloor/1024/1024); repeat: 20 20; opacity: 0.3"></a-plane>
+      <a-sky id="sky" material="shader: radialGradient; colorTop: #000; colorBottom: #111;"></a-sky>
     </a-scene>
 
-    <!-- UI Overlay -->
-    <div class="fixed inset-0 pointer-events-none flex flex-col justify-between p-6 z-50">
+    <!-- UI Overlay Container -->
+    <div id="ui-container" style="pointer-events: none;">
+      <div class="fixed inset-0 pointer-events-none flex flex-col justify-between p-6 md:p-10 z-50">
+      
+      <!-- Top Nav -->
+      <div class="flex justify-between items-start pointer-events-auto">
+        <div class="glass px-6 py-4 rounded-2xl flex items-center gap-4">
+          <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M14.31 8l5.74 9.94M9.69 8h11.48M7.38 12l5.74-9.94M9.69 16L3.95 6.06M14.31 16H2.83M16.62 12l-5.74 9.94"/></svg>
+          </div>
+          <div>
+            <h1 class="text-white text-lg font-display font-semibold tracking-tight leading-tight">STF GALLERY</h1>
+            <p class="text-white/40 text-[10px] uppercase tracking-[0.2em] font-medium">Curated Exhibition 2024</p>
+          </div>
+        </div>
         
-        <!-- Top Nav -->
-        <div class="flex justify-between items-start pointer-events-auto">
-            <div class="glass p-4 rounded-2xl">
-                <h1 class="text-white text-xl font-bold tracking-tight">AR Gallery</h1>
-                <p class="text-white/50 text-xs uppercase tracking-widest">Local Collection</p>
-            </div>
-            <button onclick="location.reload()" class="p-3 glass rounded-full text-white transition-colors">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
-            </button>
+        <button onclick="location.reload()" class="p-4 glass rounded-full text-white hover:bg-white/10 transition-all active:scale-90">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
+        </button>
+      </div>
+
+      <!-- Bottom Controls -->
+      <div class="flex flex-row justify-between items-end w-full pointer-events-none">
+        
+        <!-- Info Card (Moved to bottom-left) -->
+        <div id="info-card" class="opacity-0 translate-y-10 pointer-events-none transition-all duration-700 glass p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] shadow-2xl max-w-[320px] md:max-w-md w-full text-white relative overflow-hidden pointer-events-auto mb-4">
+          <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-yellow-500 to-transparent opacity-60"></div>
+          
+          <button onclick="window.showInfoCard(null)" class="absolute top-4 right-4 p-2 rounded-full hover:bg-white/10 text-white/40 hover:text-white transition-colors">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </button>
+
+          <div class="flex items-center gap-2 mb-3">
+            <span class="px-2 py-0.5 rounded-full bg-yellow-500/20 text-yellow-500 text-[9px] font-bold uppercase tracking-widest">Exhibition Piece</span>
+            <span id="card-year" class="text-white/30 text-[9px] uppercase tracking-widest font-medium"></span>
+          </div>
+
+          <h3 id="card-title" class="text-xl md:text-3xl font-serif font-semibold mb-1 leading-tight italic text-glow"></h3>
+          <p id="card-artist" class="text-white/50 font-display text-[10px] mb-4 flex items-center gap-2 uppercase tracking-widest">
+            <span class="w-6 h-[1px] bg-white/20"></span>
+          </p>
+          
+          <p id="card-description" class="text-xs text-white/70 leading-relaxed font-light mb-8 line-clamp-3 md:line-clamp-none italic font-serif"></p>
+
+          <button onclick="window.viewFullscreen()" class="w-full py-4 bg-white text-black rounded-xl font-bold text-[10px] uppercase tracking-[0.2em] hover:bg-yellow-500 hover:text-white transition-all duration-300 flex items-center justify-center gap-2 group">
+            <svg class="group-hover:scale-110 transition-transform" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+            Immerse Fullscreen
+          </button>
         </div>
 
-        <!-- Info Card and Button -->
-        <div class="flex flex-col items-center gap-6 pointer-events-auto">
-            <div id="info-card" class="hidden glass p-6 rounded-3xl shadow-2xl max-w-xs w-full text-white relative">
-                <button onclick="window.showInfoCard(null)" class="absolute top-4 right-4 text-white/40 hover:text-white">✕</button>
-                <h3 id="card-title" class="text-2xl font-bold mb-1"></h3>
-                <p id="card-artist" class="text-blue-400 font-medium mb-4"></p>
-                <p class="text-sm text-white/70">Walk closer to the art or tap it to see more details.</p>
+        <!-- Launch Button (Moved to bottom-right) -->
+        <div class="pointer-events-auto flex flex-col items-end">
+          <button id="ar-launch-btn" onclick="window.enterAR()" class="group relative px-8 py-4 md:px-12 md:py-6 bg-white text-black rounded-full font-display font-bold shadow-[0_0_50px_rgba(255,255,255,0.2)] flex items-center gap-3 md:gap-4 transition-all hover:scale-105 active:scale-95">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+            <span class="tracking-widest uppercase text-[10px] md:text-xs">Launch AR</span>
+            <div class="w-6 h-6 md:w-8 md:h-8 rounded-full bg-black/5 flex items-center justify-center group-hover:bg-black/10 transition-colors">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
             </div>
-
-            <button onclick="document.querySelector('a-scene').enterAR()" class="px-10 py-5 bg-white text-black rounded-full font-bold shadow-2xl flex items-center gap-3 hover:scale-105 active:scale-95 transition-all">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 12h10"/><path d="M12 7v10"/></svg>
-                LAUNCH AR
-            </button>
+          </button>
         </div>
+      </div>
     </div>
 
+    <!-- Fullscreen Image Modal (Moved inside UI container for AR support) -->
+    <div id="fullscreen-modal" class="hidden fixed inset-0 z-[200] bg-black/95 opacity-0 transition-opacity duration-500 flex-col items-center justify-center p-4 md:p-10 pointer-events-auto">
+      <button onclick="window.closeFullscreen()" class="absolute top-6 right-6 p-4 rounded-full bg-white/10 text-white hover:bg-white/20 transition-all z-[210]">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+      <img id="fullscreen-img" src="" class="max-w-full max-h-full object-contain rounded-lg shadow-2xl" referrerPolicy="no-referrer">
+    </div>
+  </div>
+
     <!-- Instructions Modal -->
-    <div id="instructions" class="fixed inset-0 z-[100] bg-black flex items-center justify-center p-8 text-center">
-        <div class="max-w-sm">
-            <h2 class="text-white text-3xl font-bold mb-4">Welcome</h2>
-            <p class="text-white/60 mb-8 leading-relaxed">to AR Gallery of STF Photography Team</p>
-            <button onclick="document.getElementById('instructions').style.display='none'" class="w-full py-5 bg-blue-600 text-white rounded-2xl font-bold uppercase tracking-widest">
-                Explore Gallery
-            </button>
+    <div id="instructions-modal" class="fixed inset-0 z-[100] bg-black/60 backdrop-blur-xl transition-opacity duration-700 flex items-center justify-center p-8 text-center">
+      <div class="absolute inset-0 opacity-20 overflow-hidden pointer-events-none">
+        <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-yellow-500/30 rounded-full blur-[120px] animate-pulse-soft"></div>
+        <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/20 rounded-full blur-[120px] animate-pulse-soft" style="animation-delay: -4s"></div>
+      </div>
+
+      <div class="max-w-md relative">
+        <div class="w-20 h-20 mx-auto mb-8 rounded-3xl bg-white/5 flex items-center justify-center border border-white/10">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M14.31 8l5.74 9.94M9.69 8h11.48M7.38 12l5.74-9.94M9.69 16L3.95 6.06M14.31 16H2.83M16.62 12l-5.74 9.94"/></svg>
         </div>
+        
+        <h2 class="text-white text-5xl font-serif italic font-semibold mb-4 tracking-tight">STF Photography</h2>
+        <p class="text-white/40 font-display text-[10px] uppercase tracking-[0.4em] mb-10">Digital Exhibition Experience</p>
+        
+        <div class="glass-light p-8 rounded-[2rem] mb-10 text-left relative overflow-hidden">
+          <h4 class="text-white/80 text-xs font-bold uppercase tracking-widest mb-3 flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-yellow-500"></span>
+            Curator's Note
+          </h4>
+          <p id="curator-note-display" class="text-white/50 text-xs leading-relaxed italic font-serif">
+            <!-- Injected via script -->
+          </p>
+        </div>
+
+        <div class="space-y-4 mb-12">
+          <div class="flex items-center gap-4 text-left glass-light px-6 py-4 rounded-2xl border-white/5">
+            <div class="w-6 h-6 rounded-full bg-white/5 flex-shrink-0 flex items-center justify-center text-[10px] font-bold border border-white/10">1</div>
+            <p class="text-white/60 text-[11px] font-medium tracking-wide">Explore the space using your device or mouse.</p>
+          </div>
+          <div class="flex items-center gap-4 text-left glass-light px-6 py-4 rounded-2xl border-white/5">
+            <div class="w-6 h-6 rounded-full bg-white/5 flex-shrink-0 flex items-center justify-center text-[10px] font-bold border border-white/10">2</div>
+            <p class="text-white/60 text-[11px] font-medium tracking-wide">Focus on any artwork and click to reveal its story.</p>
+          </div>
+        </div>
+
+        <button onclick="window.closeInstructions()" class="w-full py-6 bg-white text-black rounded-[2rem] font-display font-bold uppercase tracking-widest hover:bg-white/90 transition-all active:scale-95 shadow-2xl">
+          Enter Exhibition
+        </button>
+      </div>
+    </div>
+
+    <!-- AR Mode UI -->
+    <div id="ar-mode-ui" class="hidden fixed top-6 left-1/2 -translate-x-1/2 z-[60] pointer-events-none">
+      <div class="glass px-6 py-3 rounded-full flex items-center gap-3">
+        <div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
+        <span class="text-white text-[10px] font-bold uppercase tracking-widest">AR Live Mode</span>
+      </div>
     </div>
 
     <script>
-        function toggleInstructions(show) {
-            document.getElementById('instructions').classList.toggle('hidden', !show);
-        }
+      const assets = document.getElementById('gallery-assets');
+      const container = document.getElementById('gallery-container');
 
-        window.showInfoCard = function(item) {
-            const card = document.getElementById('info-card');
-            if (!item) { card.classList.add('hidden'); return; }
-            document.getElementById('card-title').innerText = item.title;
-            document.getElementById('card-artist').innerText = `by ${item.artist}`;
-            card.classList.remove('hidden');
+      // Set Curator's Note
+      const noteDisplay = document.getElementById('curator-note-display');
+      if (noteDisplay) noteDisplay.innerText = `"${CURATOR_NOTE}"`;
+
+      // Initialize Items
+      GALLERY_DATA.forEach((item, index) => {
+        // 1. Create the Image Asset
+        const img = document.createElement('img');
+        img.id = `img-${item.id}`;
+        img.src = item.file;
+        img.crossOrigin = "anonymous";
+        img.referrerPolicy = "no-referrer";
+        assets.appendChild(img);
+
+        // 2. Position logic (80-degree Arc for initial visibility)
+        const totalAngle = 80;
+        const angleStep = GALLERY_DATA.length > 1 ? totalAngle / (GALLERY_DATA.length - 1) : 0;
+        const angle = -(totalAngle / 2) + (index * angleStep);
+        const radius = 5; // Slightly further to fit all in FOV
+        const x = Math.sin(angle * (Math.PI / 180)) * radius;
+        const z = -Math.cos(angle * (Math.PI / 180)) * radius;
+        
+        const entity = document.createElement('a-entity');
+        entity.setAttribute('position', `${x} 1.6 ${z}`);
+        entity.setAttribute('rotation', `0 ${-angle} 0`);
+
+        // 3. Create the Frame & Canvas with initial placeholder size
+        const baseH = 1.8;
+        const baseW = 1.4;
+
+        entity.innerHTML = `
+          <a-box id="frame-bg-${item.id}" position="0 0 -0.06" width="${baseW + 0.15}" height="${baseH + 0.15}" depth="0.06" color="#0a0a0a" material="metalness: 0.5; roughness: 0.2"></a-box>
+          <a-box id="frame-border-${item.id}" position="0 0 -0.03" width="${baseW + 0.06}" height="${baseH + 0.06}" depth="0.04" color="#D4AF37" material="metalness: 0.8; roughness: 0.1"></a-box>
+          <a-image id="canvas-${item.id}" src="#img-${item.id}" width="${baseW}" height="${baseH}" class="clickable" gallery-item="id: ${item.id}">
+            <a-entity id="scan-${item.id}" position="0 0 0.01" geometry="primitive: plane; width: ${baseW}; height: 0.02" material="color: #D4AF37; opacity: 0; transparent: true" animation="property: position; from: 0 ${baseH/2} 0.01; to: 0 ${-baseH/2} 0.01; dur: 2000; loop: true; dir: alternate; enabled: false"></a-entity>
+          </a-image>
+          <a-text id="label-${item.id}" value="${item.title}" position="0 ${-baseH/2 - 0.35} 0" align="center" width="2.5" color="#FFF" font="https://cdn.aframe.io/fonts/CormorantGaramond-Light.fnt" opacity="0.8"></a-text>
+        `;
+
+        container.appendChild(entity);
+
+        // 4. Dynamic Sizing Logic: Detect real image dimensions
+        const checkImg = new Image();
+        checkImg.src = item.file;
+        checkImg.crossOrigin = "anonymous";
+        
+        checkImg.onload = function() {
+          const ratio = checkImg.naturalWidth / checkImg.naturalHeight;
+          const finalW = baseH * ratio; // Maintain height, adjust width
+          
+          // Update A-Frame elements
+          const canvas = document.getElementById(`canvas-${item.id}`);
+          const bg = document.getElementById(`frame-bg-${item.id}`);
+          const border = document.getElementById(`frame-border-${item.id}`);
+          
+          if (canvas) canvas.setAttribute('width', finalW);
+          if (bg) bg.setAttribute('width', finalW + 0.15);
+          if (border) border.setAttribute('width', finalW + 0.06);
+          
+          console.log(`Adjusted ${item.title}: Ratio ${ratio.toFixed(2)} -> Width ${finalW.toFixed(2)}`);
         };
+      });
 
-        const assets = document.getElementById('gallery-assets');
-        const container = document.getElementById('gallery-container');
-
-        // Initialize Items
-        GALLERY_DATA.forEach((item, index) => {
-            // 1. Create the Image Asset (to be loaded)
-            const img = document.createElement('img');
-            img.id = `img-${item.id}`;
-            img.src = `assets/${item.file}`; 
-            assets.appendChild(img);
-
-            // 2. Position logic (Arc)
-            const angle = (index - (GALLERY_DATA.length - 1) / 2) * 35;
-            const radius = 3.5;
-            const x = Math.sin(angle * (Math.PI / 180)) * radius;
-            const z = (Math.cos(angle * (Math.PI / 180)) * radius) - radius;
-            
-            const entity = document.createElement('a-entity');
-            entity.setAttribute('position', `${x} 1.6 ${z}`);
-            entity.setAttribute('rotation', `0 ${-angle} 0`);
-
-            // 3. Create the Frame & Canvas immediately (Bulletproof)
-            const w = 1.2; 
-            const h = 1.6;
-
-            entity.innerHTML = `
-                <!-- Frame Wood -->
-                <a-box id="frame-bg-${item.id}" position="0 0 -0.05" width="${w + 0.1}" height="${h + 0.1}" depth="0.05" color="#2c1e12"></a-box>
-                <!-- Gold Border -->
-                <a-box id="frame-border-${item.id}" position="0 0 -0.03" width="${w + 0.04}" height="${h + 0.04}" depth="0.03" color="#D4AF37"></a-box>
-                <!-- Image Canvas -->
-                <a-image id="canvas-${item.id}" src="#img-${item.id}" width="${w}" height="${h}" class="clickable" gallery-item="id: ${item.id}"></a-image>
-                <!-- Label -->
-                <a-text value="${item.title}" position="0 ${-h/2 - 0.25} 0" align="center" width="2.5" color="#FFF"></a-text>
-            `;
-
-            container.appendChild(entity);
-
-            // 4. Update the width based on real image ratio once it loads
-            const checkImg = new Image();
-            checkImg.src = `assets/${item.file}`;
-            checkImg.onload = function() {
-                const ratio = checkImg.naturalWidth / checkImg.naturalHeight;
-                const finalW = h * ratio; // Adjust width to match image shape
-                
-                // Set the new widths
-                document.getElementById(`canvas-${item.id}`).setAttribute('width', finalW);
-                document.getElementById(`frame-bg-${item.id}`).setAttribute('width', finalW + 0.1);
-                document.getElementById(`frame-border-${item.id}`).setAttribute('width', finalW + 0.04);
-                console.log("Loaded: " + item.file);
-            };
-            checkImg.onerror = function() {
-                console.error("COULD NOT FIND IMAGE: assets/" + item.file);
-            };
-        });
-
-        // AR Visibility
-        const scene = document.querySelector('a-scene');
-        scene.addEventListener('enter-vr', () => {
-            if (scene.is('ar-mode')) document.getElementById('floor').setAttribute('visible', 'false');
-        });
-        scene.addEventListener('exit-vr', () => {
-            document.getElementById('floor').setAttribute('visible', 'true');
-        });
+      // AR Visibility
+      const scene = document.querySelector('a-scene');
+      scene.addEventListener('enter-vr', () => {
+        if (scene.is('ar-mode')) {
+          // Hide environment to show camera feed
+          document.getElementById('floor').setAttribute('visible', 'false');
+          document.getElementById('sky').setAttribute('visible', 'false');
+          
+          document.getElementById('ar-launch-btn').classList.add('hidden');
+          document.getElementById('ar-mode-ui').classList.remove('hidden');
+        }
+      });
+      scene.addEventListener('exit-vr', () => {
+        document.getElementById('floor').setAttribute('visible', 'true');
+        document.getElementById('sky').setAttribute('visible', 'true');
+        
+        document.getElementById('ar-launch-btn').classList.remove('hidden');
+        document.getElementById('ar-mode-ui').classList.add('hidden');
+      });
     </script>
-</body>
+  </body>
 </html>
+
+
