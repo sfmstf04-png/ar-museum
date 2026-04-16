@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>STF AR Gallery - Draft 2</title>
+    <title>STF AR Gallery - Draft 3 - Collage</title>
     
     <!-- Libraries -->
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
@@ -236,7 +236,7 @@
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M14.31 8l5.74 9.94M9.69 8h11.48M7.38 12l5.74-9.94M9.69 16L3.95 6.06M14.31 16H2.83M16.62 12l-5.74 9.94"/></svg>
           </div>
           <div>
-            <h1 class="text-white text-lg font-display font-semibold tracking-tight leading-tight">STF GALLERY (DRAFT 2 - COLLAGE)</h1>
+            <h1 class="text-white text-lg font-display font-semibold tracking-tight leading-tight">STF GALLERY (DRAFT 3 - COLLAGE)</h1>
             <p class="text-white/40 text-[10px] uppercase tracking-[0.2em] font-medium">Curated Exhibition 2024</p>
           </div>
         </div>
@@ -336,7 +336,7 @@
       const noteDisplay = document.getElementById('curator-note-display');
       if (noteDisplay) noteDisplay.innerText = `"${CURATOR_NOTE}"`;
 
-      // Initialize Items - DRAFT 2: COLLAGE LAYOUT
+      // Initialize Items - DRAFT 3: COLLAGE LAYOUT (CLOSER)
       GALLERY_DATA.forEach((item, index) => {
         const img = document.createElement('img');
         img.id = `img-${item.id}`;
@@ -356,23 +356,23 @@
           row = 2; col = index - 7; rowCount = 3;
         }
 
-        const totalAngle = 90;
+        const totalAngle = 80; // Slightly narrower for closer view
         const angleStep = totalAngle / (rowCount - 1 || 1);
         const angle = -(totalAngle / 2) + (col * angleStep);
-        const radius = 6;
+        const radius = 4.5; // Closer than Draft 2 (which was 6)
         
         const x = Math.sin(angle * (Math.PI / 180)) * radius;
         const z = -Math.cos(angle * (Math.PI / 180)) * radius;
         
-        // Vertical positions: Top 3.2m, Middle 1.7m, Bottom 0.2m
-        const yPositions = [3.2, 1.7, 0.2];
+        // Vertical positions: Top 2.8m, Middle 1.6m, Bottom 0.4m (Adjusted for closer radius)
+        const yPositions = [2.8, 1.6, 0.4];
         const y = yPositions[row];
         
         const entity = document.createElement('a-entity');
         entity.setAttribute('position', `${x} ${y} ${z}`);
         entity.setAttribute('rotation', `0 ${-angle} 0`);
 
-        const baseH = 1.4; // Slightly smaller to fit 3 rows but still large
+        const baseH = 1.4; 
         const baseW = 1.1;
 
         entity.innerHTML = `
