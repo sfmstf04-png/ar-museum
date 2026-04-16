@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>STF AR Gallery - Draft 3 - Collage</title>
+    <title>STF AR Gallery - Draft 3 </title>
     
     <!-- Libraries -->
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
@@ -371,7 +371,6 @@
           <a-box id="frame-bg-${item.id}" position="0 0 -0.06" width="${baseW + 0.15}" height="${baseH + 0.15}" depth="0.06" color="#1a1a1a"></a-box>
           <a-box id="frame-border-${item.id}" position="0 0 -0.03" width="${baseW + 0.06}" height="${baseH + 0.06}" depth="0.04" color="#D4AF37"></a-box>
           <a-image id="canvas-${item.id}" src="#img-${item.id}" width="${baseW}" height="${baseH}" class="clickable" gallery-item="id: ${item.id}"></a-image>
-          <a-text id="label-${item.id}" value="${item.title}" position="0 ${-baseH/2 - 0.3} 0" align="center" width="2.5" color="#FFF"></a-text>
         `;
 
         container.appendChild(entity);
