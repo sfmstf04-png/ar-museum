@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>STF AR Gallery - Draft 3 </title>
+    <title>STF AR Gallery - Draft 3 - Collage</title>
     
     <!-- Libraries -->
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
@@ -90,7 +90,7 @@
           id: 7, 
           title: "Gallery Piece 7", 
           artist: "STF Photography", 
-          file: "assets/pic1.jpg", 
+          file: "assets/pic7.jpg", 
           description: "Additional gallery piece.",
           year: "2024"
         },
@@ -98,7 +98,7 @@
           id: 8, 
           title: "Gallery Piece 8", 
           artist: "STF Photography", 
-          file: "assets/pic2.jpg", 
+          file: "assets/pic8.jpg", 
           description: "Additional gallery piece.",
           year: "2024"
         },
@@ -106,7 +106,7 @@
           id: 9, 
           title: "Gallery Piece 9", 
           artist: "STF Photography", 
-          file: "assets/pic3.jpg", 
+          file: "assets/pic9.jpg", 
           description: "Additional gallery piece.",
           year: "2024"
         },
@@ -114,7 +114,7 @@
           id: 10, 
           title: "Gallery Piece 10", 
           artist: "STF Photography", 
-          file: "assets/pic4.jpg", 
+          file: "assets/pic10.jpg", 
           description: "Additional gallery piece.",
           year: "2024"
         }
@@ -357,8 +357,8 @@
         const x = Math.sin(angle * (Math.PI / 180)) * radius;
         const z = -Math.cos(angle * (Math.PI / 180)) * radius;
         
-        // Vertical positions: Top row 2.2m, Bottom row 0.7m (Grounded feel)
-        const y = row === 0 ? 2.2 : 0.7;
+        // Vertical positions: Top row 2.4m, Bottom row 0.9m (Grounded feel)
+        const y = row === 0 ? 2.4 : 0.9;
         
         const entity = document.createElement('a-entity');
         entity.setAttribute('position', `${x} ${y} ${z}`);
